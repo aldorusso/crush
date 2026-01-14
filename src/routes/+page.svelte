@@ -4,21 +4,13 @@
 	import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 	import { ArrowRight, ArrowUpRight, Plus, ExternalLink } from 'lucide-svelte';
 	import { fade } from 'svelte/transition';
+	import { getRandomItems } from '$lib/utils/array.js';
 
 	let { data } = $props();
 	const articles = data.articles;
 
-	// Shuffle and pick 3 random articles for rotation
-	function shuffleArray(array) {
-		const shuffled = [...array];
-		for (let i = shuffled.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-		}
-		return shuffled;
-	}
-	
-	const featuredArticles = shuffleArray(articles).slice(0, 3);
+	// Get 3 random articles for rotation
+	const featuredArticles = getRandomItems(articles, 3);
 	let activeIndex = $state(0);
 	let isTransitioning = $state(false);
 

@@ -3,16 +3,16 @@
 	import { onMount } from 'svelte';
 	import { gsap } from 'gsap';
 	import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
-	import { Menu, Search, X, ArrowRight, Instagram, Twitter, Youtube } from 'lucide-svelte';
-	import { fade, fly } from 'svelte/transition';
+	import { X, ArrowRight, Instagram, Twitter, Youtube } from 'lucide-svelte';
+	import { fade } from 'svelte/transition';
+	import { throttle } from '$lib/utils/performance.js';
+	import { menuStore } from '$lib/stores/menu.js';
+	import { scrollStore } from '$lib/stores/scroll.js';
+	import Header from '$lib/components/ui/Header.svelte';
+	import ProgressBar from '$lib/components/ui/ProgressBar.svelte';
 
 	/** @type {any} */
 	let { children } = $props();
-
-	let isMenuOpen = $state(false);
-	let lastScrollY = $state(0);
-	let isHeaderVisible = $state(true);
-	let scrollProgress = $state(0);
 
 	const categories = [
 		{ name: 'Front Row', slug: 'front-row', desc: 'Runway & Global Events' },
@@ -25,27 +25,18 @@
 	onMount(() => {
 		gsap.registerPlugin(ScrollTrigger);
 		
-		const handleScroll = () => {
-			const currentScrollY = window.scrollY;
-			const height = document.documentElement.scrollHeight - window.innerHeight;
-			scrollProgress = (currentScrollY / height) * 100;
-
-			if (currentScrollY > lastScrollY && currentScrollY > 100) {
-				isHeaderVisible = false;
-			} else {
-				isHeaderVisible = true;
-			}
-			lastScrollY = currentScrollY;
-		};
+		// Throttled scroll handler for better performance
+		const handleScroll = throttle(() => {
+			scrollStore.updateScroll(window.scrollY);
+		}, 16); // ~60fps
 
 		window.addEventListener('scroll', handleScroll, { passive: true });
 		return () => window.removeEventListener('scroll', handleScroll);
 	});
 
 	function toggleMenu() {
-		isMenuOpen = !isMenuOpen;
-		if (isMenuOpen) {
-			document.body.style.overflow = 'hidden';
+		menuStore.toggle();
+		if ($menuStore) {
 			// Majestic Menu Entrance
 			setTimeout(() => {
 				gsap.from('.menu-item', {
@@ -63,10 +54,9 @@
 					ease: 'power2.out'
 				});
 			}, 10);
-		} else {
-			document.body.style.overflow = 'auto';
 		}
 	}
+
 </script>
 
 <svelte:head>
@@ -77,41 +67,13 @@
 
 <div class="min-h-screen bg-white selection:bg-crush selection:text-white">
 	<!-- Reading Progress Bar -->
-	<div class="fixed top-0 left-0 w-full h-1 z-[100]">
-		<div class="h-full bg-crush transition-all duration-150 ease-out shadow-[0_0_10px_rgba(255,0,85,0.5)]" style="width: {scrollProgress}%"></div>
-	</div>
+	<ProgressBar />
 
 	<!-- Header -->
-	<header 
-		class="fixed top-0 left-0 w-full z-50 transition-transform duration-500 ease-in-out border-b border-black/5 bg-white/80 backdrop-blur-md"
-		class:-translate-y-full={!isHeaderVisible}
-	>
-		<div class="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
-			<button class="group flex items-center gap-3 p-2 hover:bg-black/5 rounded-full transition-all" onclick={toggleMenu}>
-				<div class="relative w-6 h-6 flex flex-col justify-center gap-1.5">
-					<span class="w-full h-0.5 bg-black transition-transform group-hover:scale-x-75"></span>
-					<span class="w-full h-0.5 bg-black"></span>
-				</div>
-				<span class="text-[10px] font-bold uppercase tracking-[0.3em] hidden md:block">Index</span>
-			</button>
-
-			<a href="/" class="text-4xl font-bold tracking-tighter serif italic group">
-				Crush<span class="text-crush transition-all group-hover:pl-1">.</span>
-			</a>
-
-			<div class="flex items-center gap-4">
-				<button class="p-2 hover:bg-black/5 rounded-full transition-colors">
-					<Search class="w-5 h-5" />
-				</button>
-				<a href="#" class="hidden md:block px-6 py-2 bg-black text-white text-[10px] font-bold tracking-[0.3em] uppercase hover:bg-crush transition-all hover:scale-105 active:scale-95">
-					Join The Pulse
-				</a>
-			</div>
-		</div>
-	</header>
+	<Header />
 
 	<!-- Majestic Full-Screen Menu Overlay -->
-	{#if isMenuOpen}
+	{#if $menuStore}
 		<div class="fixed inset-0 z-[60] bg-black text-white flex flex-col overflow-hidden" transition:fade={{ duration: 400 }}>
 			<!-- Menu Header -->
 			<div class="flex justify-between items-center px-6 md:px-12 pt-6 md:pt-12 pb-6 md:pb-8 flex-shrink-0">
@@ -180,7 +142,7 @@
 	</div>
 	{/if}
 
-	<main class="relative z-10 transition-all duration-500" class:blur-sm={isMenuOpen} class:scale-95={isMenuOpen} class:opacity-50={isMenuOpen}>
+	<main class="relative z-10 transition-all duration-500" class:blur-sm={$menuStore} class:scale-95={$menuStore} class:opacity-50={$menuStore}>
 		{@render children()}
 	</main>
 
