@@ -112,9 +112,9 @@
 
 	<!-- Majestic Full-Screen Menu Overlay -->
 	{#if isMenuOpen}
-		<div class="fixed inset-0 z-[60] bg-black text-white p-6 md:p-12 flex flex-col" transition:fade={{ duration: 400 }}>
+		<div class="fixed inset-0 z-[60] bg-black text-white flex flex-col overflow-hidden" transition:fade={{ duration: 400 }}>
 			<!-- Menu Header -->
-			<div class="flex justify-between items-center mb-12 md:mb-20">
+			<div class="flex justify-between items-center px-6 md:px-12 pt-6 md:pt-12 pb-6 md:pb-8 flex-shrink-0">
 				<p class="text-[10px] font-bold tracking-[0.5em] uppercase text-white/40">Editorial Index / Vol 01</p>
 				<button onclick={toggleMenu} class="group p-4 hover:bg-white/10 rounded-full transition-all flex items-center gap-4">
 					<span class="text-[10px] font-bold uppercase tracking-[0.3em]">Close</span>
@@ -122,8 +122,10 @@
 				</button>
 			</div>
 			
-			<div class="grid grid-cols-1 lg:grid-cols-12 flex-1 items-center">
-				<nav class="lg:col-span-8 flex flex-col gap-4 md:gap-8">
+			<!-- Scrollable Content Area -->
+			<div class="flex-1 overflow-y-auto px-6 md:px-12 pb-6">
+				<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+					<nav class="lg:col-span-8 flex flex-col gap-4 md:gap-8">
 					{#each categories as cat, i}
 						<a 
 							href="/category/{cat.slug}" 
@@ -156,8 +158,8 @@
 						<p class="text-[10px] font-bold uppercase tracking-widest text-crush">Read Issue 04</p>
 					</div>
 				</div>
-			</div>
-
+				</div>
+			
 			<!-- Menu Footer -->
 			<div class="menu-footer flex flex-col md:flex-row justify-between items-end md:items-center gap-8 border-t border-white/10 pt-12 mt-12">
 				<div class="flex gap-12 text-[10px] font-bold tracking-[0.3em] uppercase">
@@ -175,6 +177,7 @@
 				<p class="text-[10px] tracking-[0.3em] uppercase text-white/20">© 2026 Crush Digital. Developed for Excellence.</p>
 			</div>
 		</div>
+	</div>
 	{/if}
 
 	<main class="relative z-10 transition-all duration-500" class:blur-sm={isMenuOpen} class:scale-95={isMenuOpen} class:opacity-50={isMenuOpen}>

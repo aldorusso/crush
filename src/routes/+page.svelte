@@ -8,8 +8,17 @@
 	let { data } = $props();
 	const articles = data.articles;
 
-	// Pick top 3 articles for rotation
-	const featuredArticles = articles.slice(0, 3);
+	// Shuffle and pick 3 random articles for rotation
+	function shuffleArray(array) {
+		const shuffled = [...array];
+		for (let i = shuffled.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+		}
+		return shuffled;
+	}
+	
+	const featuredArticles = shuffleArray(articles).slice(0, 3);
 	let activeIndex = $state(0);
 	let isTransitioning = $state(false);
 
@@ -126,35 +135,37 @@
 		<div class="relative z-10 max-w-7xl mx-auto px-6 md:px-8 w-full">
 			<div class="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-20 items-center">
 				<!-- Main Content Column -->
-				<div class="lg:col-span-7 xl:col-span-7">
-					{#key activeIndex}
-						<div transition:fade={{ duration: 500 }}>
+				<div class="lg:col-span-7 xl:col-span-7 relative h-[650px] md:h-[700px] lg:h-[750px] xl:h-[800px]">
+					{#each featuredArticles as article, i}
+						<div 
+							class="absolute top-0 left-0 right-0 transition-opacity duration-700 ease-in-out"
+							style="opacity: {i === activeIndex ? 1 : 0}; pointer-events: {i === activeIndex ? 'auto' : 'none'};">
 							<!-- Category Badge -->
 							<div class="mb-8 md:mb-10">
 								<div class="inline-flex items-center gap-4">
 									<span class="text-crush font-bold tracking-[0.3em] uppercase text-xs md:text-sm">
-										{activeArticle.category}
+										{article.category}
 									</span>
 									<span class="w-12 h-px bg-white/20"></span>
-									<span class="text-white/40 font-bold text-xs md:text-sm">0{activeIndex + 1}/0{featuredArticles.length}</span>
+									<span class="text-white/40 font-bold text-xs md:text-sm">0{i + 1}/0{featuredArticles.length}</span>
 								</div>
 							</div>
 
 							<!-- Main Headline -->
 							<h1 class="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.05] tracking-tight mb-8 md:mb-10">
 								<span class="block text-white font-serif italic">
-									{activeArticle.title}
+									{article.title}
 								</span>
 							</h1>
 
 							<!-- Excerpt -->
 							<p class="text-lg md:text-xl lg:text-2xl font-serif italic text-white/60 mb-12 md:mb-16 leading-relaxed max-w-2xl">
-								{activeArticle.excerpt}
+								{article.excerpt}
 							</p>
 
 							<!-- CTA Button -->
 							<a 
-								href="/article/{activeArticle.slug}" 
+								href="/article/{article.slug}" 
 								class="inline-flex items-center gap-6 group">
 								<div class="w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-500">
 									<ArrowRight class="w-6 h-6 md:w-7 md:h-7 text-white group-hover:text-black transition-colors duration-500" />
@@ -164,17 +175,19 @@
 								</span>
 							</a>
 						</div>
-					{/key}
+					{/each}
 				</div>
 
 				<!-- Sidebar Meta Info -->
-				<div class="lg:col-span-5 xl:col-span-5 flex flex-col gap-8">
-					{#key activeIndex}
-						<div transition:fade={{ duration: 500, delay: 100 }} class="space-y-6">
+				<div class="lg:col-span-5 xl:col-span-5 flex flex-col gap-8 relative h-[200px] md:h-[220px]">
+					{#each featuredArticles as article, i}
+						<div 
+							class="absolute top-0 left-0 right-0 transition-opacity duration-700 ease-in-out space-y-6"
+							style="opacity: {i === activeIndex ? 1 : 0}; pointer-events: {i === activeIndex ? 'auto' : 'none'};">
 							<!-- Topic Card -->
 							<div class="p-6 md:p-8 border border-white/10 bg-white/[0.03] backdrop-blur-sm">
 								<p class="text-[10px] md:text-xs font-bold uppercase tracking-[0.4em] text-white/30 mb-3">Topic</p>
-								<p class="text-white text-base md:text-lg font-medium tracking-wide uppercase">{activeArticle.category}</p>
+								<p class="text-white text-base md:text-lg font-medium tracking-wide uppercase">{article.category}</p>
 							</div>
 
 							<!-- Vibe Card -->
@@ -183,7 +196,7 @@
 								<p class="text-white text-base md:text-lg font-medium tracking-wide uppercase italic font-serif">Experimental / Luxury</p>
 							</div>
 						</div>
-					{/key}
+					{/each}
 				</div>
 			</div>
 
