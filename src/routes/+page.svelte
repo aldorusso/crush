@@ -108,19 +108,20 @@
 <div class="bg-white selection:bg-crush selection:text-white">
 	<!-- Hero Section -->
 	<section class="relative min-h-screen flex items-center justify-center pt-32 pb-20 md:pb-32 overflow-hidden border-b border-black/5">
-		<!-- Background Image with Smooth Transition -->
-		{#key activeIndex}
-			<div 
-				class="absolute inset-0 z-0 bg-black" 
-				transition:fade={{ duration: 600 }}
-			>
-				<img 
-					src={activeArticle.image} 
-					alt={activeArticle.title} 
-					class="parallax-img w-full h-full object-cover grayscale opacity-25 scale-105"
-				/>
-			</div>
-		{/key}
+		<!-- Background Images with Smooth Crossfade -->
+		<div class="absolute inset-0 z-0 bg-black">
+			{#each featuredArticles as article, i}
+				<div 
+					class="absolute inset-0 transition-opacity duration-700 ease-in-out"
+					style="opacity: {i === activeIndex ? 1 : 0}; pointer-events: {i === activeIndex ? 'auto' : 'none'};">
+					<img 
+						src={article.image} 
+						alt={article.title} 
+						class="parallax-img w-full h-full object-cover grayscale opacity-25 scale-105"
+					/>
+				</div>
+			{/each}
+		</div>
 		
 		<div class="relative z-10 max-w-7xl mx-auto px-6 md:px-8 w-full">
 			<div class="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-20 items-center">
