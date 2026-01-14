@@ -103,7 +103,7 @@
 				<button class="p-2 hover:bg-black/5 rounded-full transition-colors">
 					<Search class="w-5 h-5" />
 				</button>
-				<a href="/subscribe" class="hidden md:block px-6 py-2 bg-black text-white text-[10px] font-bold tracking-[0.3em] uppercase hover:bg-crush transition-all hover:scale-105 active:scale-95">
+				<a href="#" class="hidden md:block px-6 py-2 bg-black text-white text-[10px] font-bold tracking-[0.3em] uppercase hover:bg-crush transition-all hover:scale-105 active:scale-95">
 					Join The Pulse
 				</a>
 			</div>
@@ -161,9 +161,9 @@
 			<!-- Menu Footer -->
 			<div class="menu-footer flex flex-col md:flex-row justify-between items-end md:items-center gap-8 border-t border-white/10 pt-12 mt-12">
 				<div class="flex gap-12 text-[10px] font-bold tracking-[0.3em] uppercase">
-					<a href="/about" class="hover:text-crush transition-colors">Manifesto</a>
-					<a href="/contact" class="hover:text-crush transition-colors">Contact</a>
-					<a href="/legal" class="hover:text-crush transition-colors">Privacy</a>
+					<a href="#" class="hover:text-crush transition-colors">Manifesto</a>
+					<a href="#" class="hover:text-crush transition-colors">Contact</a>
+					<a href="#" class="hover:text-crush transition-colors">Privacy</a>
 				</div>
 				
 				<div class="flex gap-8 items-center">
@@ -205,9 +205,9 @@
 					</div>
 					<div class="flex flex-col gap-6">
 						<p class="text-[10px] tracking-[0.4em] uppercase text-white/30 font-bold mb-4">Crush HQ</p>
-						<a href="/about" class="text-lg md:text-xl font-serif italic hover:text-crush transition-colors">Manifesto</a>
-						<a href="/privacy" class="text-lg md:text-xl font-serif italic hover:text-crush transition-colors">Privacy</a>
-						<a href="/terms" class="text-lg md:text-xl font-serif italic hover:text-crush transition-colors">Terms</a>
+						<a href="#" class="text-lg md:text-xl font-serif italic hover:text-crush transition-colors">Manifesto</a>
+						<a href="#" class="text-lg md:text-xl font-serif italic hover:text-crush transition-colors">Privacy</a>
+						<a href="#" class="text-lg md:text-xl font-serif italic hover:text-crush transition-colors">Terms</a>
 					</div>
 					<div class="flex flex-col gap-6">
 						<p class="text-[10px] tracking-[0.4em] uppercase text-white/30 font-bold mb-4">Social</p>

@@ -342,7 +342,7 @@
 	<section class="max-w-7xl mx-auto px-4 md:px-8 py-24 md:py-40">
 		<div class="mb-16 flex items-end justify-between">
 			<h2 class="text-4xl md:text-6xl font-bold serif italic leading-none">The Archives.</h2>
-			<a href="/archives" class="text-xs font-bold uppercase tracking-widest hover:text-crush transition-colors border-b border-black/20 pb-1">View All</a>
+			<a href="#" class="text-xs font-bold uppercase tracking-widest hover:text-crush transition-colors border-b border-black/20 pb-1">View All</a>
 		</div>
 		
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-8">

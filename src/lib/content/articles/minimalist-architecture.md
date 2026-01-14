@@ -3,7 +3,7 @@ title: "The New Avant-Garde: Why Minimalist Architecture is Reclaiming the City"
 date: "2026-01-13"
 category: "Trend Lab"
 author: "Elena Rossi"
-image: "/images/architecture_minimalism.webp"
+image: "/images/architecture-minimalism.png"
 excerpt: "As urban spaces become increasingly cluttered, a new wave of architects is stripping back to the essentials, creating silent monuments in the noise."
 ---
 
