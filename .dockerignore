@@ -1,0 +1,11 @@
+node_modules
+.svelte-kit
+build
+.git
+.gitignore
+.prettier*
+jsconfig.json
+README.md
+docker-compose.yml
+Dockerfile
+.dockerignore

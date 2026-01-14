@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@theme {
+  --color-crush: #ff0055;
+  --color-crush-dark: #cc0044;
+  --color-neutral-glass: rgba(255, 255, 255, 0.05);
+
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+
+  --ease-expo-out: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-rgb: 10, 10, 10;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: white;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+.serif {
+  font-family: var(--font-serif);
+}
+
+.text-crush {
+  color: var(--color-crush);
+}
+
+.bg-crush {
+  background-color: var(--color-crush);
+}
+
+/* Experimental Utilities */
+.mask-reveal {
+  clip-path: inset(0 100% 0 0);
+}
+
+.vertical-text {
+  writing-mode: vertical-rl;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Typography Refinements */
+p {
+  line-height: 1.8;
+  letter-spacing: -0.01em;
+}
+
+.article-content {
+  font-size: 1.1rem;
+}
+
+@media (min-width: 768px) {
+  .article-content {
+    font-size: 1.25rem;
+  }
+}
+
+/* Mobile Polish */
+@media (max-width: 767px) {
+  h1 {
+    font-size: 4rem !important;
+    line-height: 1 !important;
+  }
+
+  .prose {
+    font-size: 1.1rem !important;
+  }
+
+  .prose blockquote {
+    font-size: 1.25rem !important;
+    padding-left: 1.5rem !important;
+    margin: 3rem 0 !important;
+  }
+}
