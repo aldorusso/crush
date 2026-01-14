@@ -7,11 +7,7 @@
 </script>
 
 <header 
-	class="fixed top-0 left-0 w-full z-50 transition-transform duration-500 ease-in-out"
-	class:border-b={!transparent}
-	class:border-black/5={!transparent}
-	class:bg-white/80={!transparent}
-	class:backdrop-blur-md={!transparent}
+	class="fixed top-0 left-0 w-full z-50 transition-transform duration-500 ease-in-out {!transparent ? 'border-b border-black/5 bg-white/80 backdrop-blur-md' : ''}"
 	class:-translate-y-full={!$isHeaderVisible}
 >
 	<div class="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
