@@ -3,6 +3,7 @@
 	import { gsap } from 'gsap';
 	import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 	import { ArrowRight, ArrowUpRight, Plus, ExternalLink } from 'lucide-svelte';
+	import { fade } from 'svelte/transition';
 
 	let { data } = $props();
 	const articles = data.articles;
@@ -10,6 +11,7 @@
 	// Pick top 3 articles for rotation
 	const featuredArticles = articles.slice(0, 3);
 	let activeIndex = $state(0);
+	let isTransitioning = $state(false);
 
 	// Derived current article data
 	const activeArticle = $derived(featuredArticles[activeIndex] || {
@@ -19,35 +21,8 @@
 		excerpt: "A seasonal curation of the digital avant-garde and the architecture of tomorrow."
 	});
 
-	// Split title for cinematic reveal
-	let titleFirstHalf = $state("");
-	let titleSecondHalf = $state("");
-
-	$effect(() => {
-		const words = activeArticle.title.split(' ');
-		titleFirstHalf = words.slice(0, Math.ceil(words.length / 2)).join(' ');
-		titleSecondHalf = words.slice(Math.ceil(words.length / 2)).join(' ');
-	});
-
 	onMount(() => {
 		gsap.registerPlugin(ScrollTrigger);
-
-		// Hero Reveal Initialization
-		const heroTL = gsap.timeline();
-		
-		function animateHeroIn() {
-			heroTL.fromTo('.hero-title-line', 
-				{ y: 40, opacity: 0, filter: 'blur(10px)' },
-				{ y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.5, ease: 'power4.out', stagger: 0.15 }
-			);
-			heroTL.fromTo('.hero-meta',
-				{ opacity: 0, y: 20 },
-				{ opacity: 1, y: 0, duration: 1, ease: 'power2.out' },
-				"-=1"
-			);
-		}
-
-		animateHeroIn();
 
 		let rotationInterval;
 
@@ -55,61 +30,27 @@
 			clearInterval(rotationInterval);
 			rotationInterval = setInterval(() => {
 				goToSlide((activeIndex + 1) % featuredArticles.length);
-			}, 9000);
+			}, 7000);
 		}
 
-		async function goToSlide(index) {
-			if (index === activeIndex) return;
+		function goToSlide(index) {
+			if (index === activeIndex || isTransitioning) return;
 			
-			const transitionTL = gsap.timeline();
+			isTransitioning = true;
+			activeIndex = index;
 			
-			// Decisive fade out of current content
-			transitionTL.to(['.hero-title-line', '.hero-meta'], {
-				opacity: 0,
-				filter: 'blur(8px)',
-				y: -15,
-				duration: 0.6,
-				stagger: 0.05,
-				ease: 'power2.in'
-			});
-
-			// Background transition
-			transitionTL.to('.parallax-img', {
-				scale: 1.15,
-				opacity: 0.1,
-				duration: 0.8,
-				ease: 'power2.inOut'
-			}, "-=0.4");
-
-			transitionTL.add(() => {
-				activeIndex = index;
-			});
-
-			// Reveal new content
-			transitionTL.to('.parallax-img', {
-				scale: 1.05,
-				opacity: 0.3,
-				duration: 1.2,
-				ease: 'expo.out'
-			});
-
-			transitionTL.fromTo('.hero-title-line', 
-				{ y: 30, opacity: 0, filter: 'blur(8px)' },
-				{ y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'expo.out', stagger: 0.1 },
-				"-=0.8"
-			);
-
-			transitionTL.fromTo('.hero-meta',
-				{ opacity: 0, y: 15 },
-				{ opacity: 1, y: 0, duration: 1, ease: 'power2.out' },
-				"-=1"
-			);
+			// Allow transition to complete
+			setTimeout(() => {
+				isTransitioning = false;
+			}, 800);
 
 			// Reset timer after manual interaction
 			startRotation();
 		}
 
-		animateHeroIn();
+		// Expose goToSlide to window for button clicks
+		window.goToSlide = goToSlide;
+
 		startRotation();
 
 		// Horizontal Scroll Animation
@@ -143,95 +84,128 @@
 		});
 
 		// Parallax on Scroll
-		gsap.to('.parallax-img', {
-			yPercent: 15,
-			ease: 'none',
-			scrollTrigger: {
-				trigger: '.parallax-img',
-				scrub: true,
-				start: "top top",
-				end: "bottom top"
-			}
-		});
+		const parallaxImg = document.querySelector('.parallax-img');
+		if (parallaxImg) {
+			gsap.to(parallaxImg, {
+				yPercent: 15,
+				ease: 'none',
+				scrollTrigger: {
+					trigger: parallaxImg,
+					scrub: true,
+					start: "top top",
+					end: "bottom top"
+				}
+			});
+		}
+
+		return () => {
+			clearInterval(rotationInterval);
+			delete window.goToSlide;
+		};
 	});
 </script>
 
 <div class="bg-white selection:bg-crush selection:text-white">
 	<!-- Hero Section -->
-	<section class="relative min-h-[95vh] md:min-h-screen flex items-center justify-center pt-24 pb-24 md:pb-40 overflow-hidden border-b border-black/5">
-		<div class="absolute inset-0 z-0 bg-black pointer-events-none">
-			<img 
-				src={activeArticle.image} 
-				alt={activeArticle.title} 
-				class="parallax-img w-full h-full object-cover grayscale opacity-30 scale-105"
-			/>
-		</div>
+	<section class="relative min-h-screen flex items-center justify-center pt-32 pb-20 md:pb-32 overflow-hidden border-b border-black/5">
+		<!-- Background Image with Smooth Transition -->
+		{#key activeIndex}
+			<div 
+				class="absolute inset-0 z-0 bg-black" 
+				transition:fade={{ duration: 600 }}
+			>
+				<img 
+					src={activeArticle.image} 
+					alt={activeArticle.title} 
+					class="parallax-img w-full h-full object-cover grayscale opacity-25 scale-105"
+				/>
+			</div>
+		{/key}
 		
-		<div class="relative z-10 max-w-7xl mx-auto px-4 w-full">
-			<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-32 items-start">
-				<!-- Title Column (Large/Left) -->
-				<div class="lg:col-span-7 xl:col-span-8">
-					<div class="hero-meta mb-8 md:mb-12">
-						<div class="flex items-center gap-6">
-							<p class="text-crush font-bold tracking-[0.6em] uppercase text-[9px] md:text-[10px]">
-								{activeArticle.category} // 0{activeIndex + 1}
-							</p>
-							<span class="w-16 h-px bg-white/10"></span>
-						</div>
-					</div>
-
-					<h1 class="flex flex-col gap-2 md:gap-4 text-4xl md:text-5xl lg:text-[5.5rem] xl:text-[6.5rem] font-bold leading-[1.1] tracking-[-0.03em] serif italic text-white pointer-events-none">
-						<span class="hero-title-line block">{titleFirstHalf}</span>
-						<span class="hero-title-line block text-crush lg:pl-16">{titleSecondHalf}</span>
-					</h1>
-
-					<!-- Interactive Selectors (Integrated) -->
-					<div class="mt-16 md:mt-24 flex items-center gap-4 relative z-30 pointer-events-auto">
-						{#each featuredArticles as _, i}
-							<button 
-								onclick={() => goToSlide(i)}
-								class="group flex items-center gap-4 focus:outline-none"
-								aria-label="Go to slide {i + 1}"
-							>
-								<div class="w-12 h-[2px] bg-white/10 relative overflow-hidden group-hover:bg-white/30 transition-colors">
-									{#if i === activeIndex}
-										<div class="absolute inset-0 bg-crush origin-left animate-slide-right"></div>
-									{/if}
+		<div class="relative z-10 max-w-7xl mx-auto px-6 md:px-8 w-full">
+			<div class="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-20 items-center">
+				<!-- Main Content Column -->
+				<div class="lg:col-span-7 xl:col-span-7">
+					{#key activeIndex}
+						<div transition:fade={{ duration: 500 }}>
+							<!-- Category Badge -->
+							<div class="mb-8 md:mb-10">
+								<div class="inline-flex items-center gap-4">
+									<span class="text-crush font-bold tracking-[0.3em] uppercase text-xs md:text-sm">
+										{activeArticle.category}
+									</span>
+									<span class="w-12 h-px bg-white/20"></span>
+									<span class="text-white/40 font-bold text-xs md:text-sm">0{activeIndex + 1}/0{featuredArticles.length}</span>
 								</div>
-								<span class="text-[9px] font-bold transition-all duration-500 {i === activeIndex ? 'text-white' : 'text-white/20 group-hover:text-white/40'}">
-									0{i + 1}
+							</div>
+
+							<!-- Main Headline -->
+							<h1 class="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.05] tracking-tight mb-8 md:mb-10">
+								<span class="block text-white font-serif italic">
+									{activeArticle.title}
 								</span>
-							</button>
-						{/each}
-					</div>
+							</h1>
+
+							<!-- Excerpt -->
+							<p class="text-lg md:text-xl lg:text-2xl font-serif italic text-white/60 mb-12 md:mb-16 leading-relaxed max-w-2xl">
+								{activeArticle.excerpt}
+							</p>
+
+							<!-- CTA Button -->
+							<a 
+								href="/article/{activeArticle.slug}" 
+								class="inline-flex items-center gap-6 group">
+								<div class="w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-500">
+									<ArrowRight class="w-6 h-6 md:w-7 md:h-7 text-white group-hover:text-black transition-colors duration-500" />
+								</div>
+								<span class="text-white text-sm md:text-base font-bold uppercase tracking-[0.3em] group-hover:text-crush transition-colors duration-500">
+									Read Article
+								</span>
+							</a>
+						</div>
+					{/key}
 				</div>
 
-				<!-- Info Column (Side/Right) -->
-				<div class="lg:col-span-5 xl:col-span-4 lg:pt-32 flex flex-col gap-12 hero-meta relative z-30 pointer-events-auto">
-					<div class="max-w-sm">
-						<div class="flex flex-col gap-8 mb-12">
-							<div class="p-6 border border-white/5 bg-white/[0.02] backdrop-blur-sm">
-								<p class="text-[9px] font-bold uppercase tracking-[0.4em] text-white/20 mb-3">Topic</p>
-								<p class="text-white text-xs font-medium tracking-wide uppercase">{activeArticle.category}</p>
+				<!-- Sidebar Meta Info -->
+				<div class="lg:col-span-5 xl:col-span-5 flex flex-col gap-8">
+					{#key activeIndex}
+						<div transition:fade={{ duration: 500, delay: 100 }} class="space-y-6">
+							<!-- Topic Card -->
+							<div class="p-6 md:p-8 border border-white/10 bg-white/[0.03] backdrop-blur-sm">
+								<p class="text-[10px] md:text-xs font-bold uppercase tracking-[0.4em] text-white/30 mb-3">Topic</p>
+								<p class="text-white text-base md:text-lg font-medium tracking-wide uppercase">{activeArticle.category}</p>
 							</div>
-							<div class="p-6 border border-white/5 bg-white/[0.02] backdrop-blur-sm">
-								<p class="text-[9px] font-bold uppercase tracking-[0.4em] text-white/20 mb-3">Vibe</p>
-								<p class="text-white text-xs font-medium tracking-wide uppercase italic serif">Experimental / Luxury</p>
+
+							<!-- Vibe Card -->
+							<div class="p-6 md:p-8 border border-white/10 bg-white/[0.03] backdrop-blur-sm">
+								<p class="text-[10px] md:text-xs font-bold uppercase tracking-[0.4em] text-white/30 mb-3">Vibe</p>
+								<p class="text-white text-base md:text-lg font-medium tracking-wide uppercase italic font-serif">Experimental / Luxury</p>
 							</div>
 						</div>
-
-						<p class="text-base md:text-lg font-serif italic text-white/40 mb-12 leading-relaxed">
-							{activeArticle.excerpt}
-						</p>
-						
-						<a href="/article/{activeArticle.slug}" class="relative z-40 inline-flex items-center gap-8 group">
-							<div class="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-700">
-								<ArrowRight class="w-6 h-6 text-white group-hover:text-black transition-colors" />
-							</div>
-							<span class="text-white text-[10px] font-bold uppercase tracking-[0.5em] group-hover:text-crush transition-colors">Digital Issue</span>
-						</a>
-					</div>
+					{/key}
 				</div>
+			</div>
+
+			<!-- Navigation Dots -->
+			<div class="mt-16 md:mt-20 flex items-center gap-6">
+				{#each featuredArticles as _, i}
+					<button 
+						onclick={() => window.goToSlide(i)}
+						class="group flex items-center gap-4 focus:outline-none transition-all"
+						aria-label="Go to slide {i + 1}"
+					>
+						<!-- Progress Bar -->
+						<div class="relative w-16 md:w-20 h-[2px] bg-white/10 overflow-hidden group-hover:bg-white/20 transition-colors">
+							{#if i === activeIndex}
+								<div class="absolute inset-0 bg-crush origin-left" style="animation: slideProgress 7s linear;"></div>
+							{/if}
+						</div>
+						<!-- Number -->
+						<span class="text-xs md:text-sm font-bold transition-all duration-300 {i === activeIndex ? 'text-white scale-110' : 'text-white/30 group-hover:text-white/50'}">
+							0{i + 1}
+						</span>
+					</button>
+				{/each}
 			</div>
 		</div>
 	</section>
@@ -377,6 +351,15 @@
 <style>
 	.vertical-text {
 		writing-mode: vertical-rl;
+	}
+	
+	@keyframes slideProgress {
+		from { 
+			transform: scaleX(0); 
+		}
+		to { 
+			transform: scaleX(1); 
+		}
 	}
 	@keyframes slide-right {
 		from { transform: translateX(-100%); }
